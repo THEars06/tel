@@ -1,0 +1,123 @@
+🔥 NEUALHELPPASS Android APK - Google Colab Kılavuzu
+==================================================
+
+📋 1. ADIM: Sistem Hazırlığı
+----------------------------
+# İlk hücrede çalıştırın:
+!apt update
+!apt install -y python3-pip git zip unzip default-jdk
+!pip install buildozer cython
+
+📋 2. ADIM: Android SDK Kurulumu  
+--------------------------------
+# İkinci hücrede çalıştırın:
+!wget https://dl.google.com/android/repository/commandlinetools-linux-8512546_latest.zip
+!unzip commandlinetools-linux-8512546_latest.zip
+!mkdir -p /opt/android-sdk/cmdline-tools
+!mv cmdline-tools /opt/android-sdk/cmdline-tools/latest
+import os
+os.environ['ANDROID_HOME'] = '/opt/android-sdk'
+os.environ['PATH'] = os.environ['PATH'] + ':/opt/android-sdk/cmdline-tools/latest/bin'
+
+📋 3. ADIM: Proje Dosyalarını Hazırlama
+---------------------------------------
+# Üçüncü hücrede çalıştırın:
+!mkdir -p /content/neualhelppass/app
+%cd /content/neualhelppass/app
+
+# Projeyi GitHub'dan indirmek yerine manuel olarak oluşturalım
+# (Eğer GitHub'da varsa: !git clone https://github.com/kullanici/NEUALHELPPASS.git)
+
+📋 4. ADIM: Ana Dosyaları Oluşturma
+-----------------------------------
+# Dördüncü hücrede çalıştırın:
+
+# main.py dosyası oluştur
+with open('main.py', 'w', encoding='utf-8') as f:
+    f.write("""
+# NEUALHELPPASS - Ana dosya (Basitleştirilmiş Android versiyonu)
+from kivy.app import App
+from kivy.uix.screenmanager import Screen, ScreenManager
+from kivy.uix.label import Label
+from kivy.uix.button import Button
+from kivy.uix.boxlayout import BoxLayout
+
+class MainScreen(Screen):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        layout = BoxLayout(orientation='vertical', padding=20, spacing=20)
+        
+        title = Label(text='NEUALHELPPASS\\nKıbrıs Güvenlik Uygulaması', 
+                     font_size='24sp', halign='center')
+        
+        face_btn = Button(text='Yüz Analizi', size_hint_y=None, height='50dp')
+        score_btn = Button(text='Güvenlik Puanı', size_hint_y=None, height='50dp')
+        map_btn = Button(text='Güvenlik Haritası', size_hint_y=None, height='50dp')
+        
+        layout.add_widget(title)
+        layout.add_widget(face_btn)
+        layout.add_widget(score_btn)
+        layout.add_widget(map_btn)
+        
+        self.add_widget(layout)
+
+class NEUALHELPPASSApp(App):
+    def build(self):
+        sm = ScreenManager()
+        sm.add_widget(MainScreen(name='main'))
+        return sm
+
+if __name__ == '__main__':
+    NEUALHELPPASSApp().run()
+""")
+
+print("✅ main.py oluşturuldu")
+
+📋 5. ADIM: Buildozer Konfigürasyonu
+------------------------------------
+# Beşinci hücrede çalıştırın:
+
+with open('buildozer.spec', 'w', encoding='utf-8') as f:
+    f.write("""[app]
+title = NEUALHELPPASS
+package.name = neualhelppass
+package.domain = org.neualhelppass
+source.dir = .
+source.include_exts = py,png,jpg,kv,atlas
+version = 1.0
+requirements = python3,kivy
+orientation = portrait
+
+[buildozer]
+log_level = 2
+""")
+
+print("✅ buildozer.spec oluşturuldu")
+
+📋 6. ADIM: APK Oluşturma
+--------------------------
+# Altıncı hücrede çalıştırın:
+!buildozer android debug
+
+📋 7. ADIM: APK İndirme
+-----------------------
+# Yedinci hücrede çalıştırın:
+from google.colab import files
+import os
+
+# APK dosyasını bul
+apk_files = []
+for root, dirs, files in os.walk('/content/neualhelppass/app/bin'):
+    for file in files:
+        if file.endswith('.apk'):
+            apk_files.append(os.path.join(root, file))
+
+if apk_files:
+    print(f"✅ APK bulundu: {apk_files[0]}")
+    files.download(apk_files[0])
+else:
+    print("❌ APK dosyası bulunamadı")
+    print("📁 Bin klasörü içeriği:")
+    !ls -la bin/
+
+🎯 TAMAMLANMIş! APK dosyanız indirildi ve Android cihazınıza yükleyebilirsiniz. 
